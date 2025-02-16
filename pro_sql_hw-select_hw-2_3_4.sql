@@ -35,19 +35,43 @@ WHERE musican_name NOT ILIKE '% %';
 
 -- Название треков, которые содержат слово «мой» или «my».
 -- вариант 1
-SELECT track_name
-FROM track
-WHERE track_name ILIKE '% my %';
+-- SELECT track_name
+-- FROM track
+-- WHERE track_name ILIKE '% my %';
 
 -- варианта 2
+-- SELECT track_name
+-- FROM track
+-- WHERE LOWER (track_name) LIKE LOWER ('% my %');
+
+-- Исправленное ДЗ 16.02.2025 
+
+-- вариант 1 OR
 SELECT track_name
 FROM track
-WHERE LOWER (track_name) LIKE LOWER ('% my %');
+WHERE track_name ILIKE '% my %'
+OR track_name ILIKE 'my %'
+OR track_name ILIKE '% my'
+OR track_name ILIKE 'my';
 
+-- варианта 2 OR
+SELECT track_name
+FROM track
+WHERE LOWER (track_name) LIKE LOWER ('% my %')
+OR LOWER (track_name) LIKE LOWER ('my %')
+OR LOWER (track_name) LIKE LOWER ('% my')
+OR LOWER (track_name) LIKE LOWER ('my');
 
+-- вариант 3 ARRAY
+SELECT t.track_name
+FROM track t
+WHERE string_to_array(LOWER(t.track_name), ' ') && ARRAY ['my']
 
+-- вариант 4 ~*
+SELECT t.track_name
+FROM track t
+WHERE t.track_name ~* '( my |\Amy | my\Z|\Amy\Z)'
 
--- Задание 3
 
 -- Количество исполнителей в каждом жанре.
 -- вариант 1
@@ -85,11 +109,25 @@ GROUP BY a.album_name;
 
 
 -- Все исполнители, которые не выпустили альбомы в 2020 году.
-SELECT m.musican_name AS Havent_album_in_2020, a.album_release_year
-FROM musican m
-JOIN musican_album ma ON m.musican_id = ma.musican_id
-JOIN album a ON a.album_id = ma.album_id 
-WHERE a.album_release_year != 2020;
+-- SELECT m.musican_name AS Havent_album_in_2020, a.album_release_year
+-- FROM musican m
+-- JOIN musican_album ma ON m.musican_id = ma.musican_id
+-- JOIN album a ON a.album_id = ma.album_id 
+-- WHERE a.album_release_year != 2020;
+
+-- Исправленное ДЗ 16.02.2025 
+
+SELECT mus.musican_name AS Havent_album_in_2020
+FROM musican mus
+WHERE mus.musican_name NOT IN (
+	SELECT m.musican_name 
+	FROM musican m
+	JOIN musican_album ma ON m.musican_id = ma.musican_id
+	JOIN album a ON a.album_id = ma.album_id 
+	WHERE a.album_release_year = 2020
+);
+
+
 
 
 -- Названия сборников, в которых присутствует конкретный исполнитель (выберите его сами).
@@ -111,26 +149,37 @@ GROUP BY coh.collection_of_hits_name, m.musican_name;
 -- ! решение выполнено для collection, т.к. album содержит треки одного музыканта
 
 -- варианта 1
-SELECT coh.collection_of_hits_name, COUNT(DISTINCT g.genre_name) AS count_genre
-FROM collection_of_hits coh 
-JOIN collection_track ct ON ct.collection_of_hits_id = coh.collection_of_hits_id 
-JOIN track t ON t.track_id = ct.track_id
-JOIN album a ON a.album_id = t.album_id 
-JOIN musican_album ma ON ma.album_id = a.album_id 
-JOIN musican m ON ma.musican_id = m.musican_id 
-JOIN genre_musican gm ON gm.musican_id = m.musican_id 
-JOIN genre g ON gm.genre_id = g.genre_id 
-GROUP BY coh.collection_of_hits_name
-HAVING COUNT(DISTINCT g.genre_name) != 1;
+-- SELECT coh.collection_of_hits_name, COUNT(DISTINCT g.genre_name) AS count_genre
+-- FROM collection_of_hits coh 
+-- JOIN collection_track ct ON ct.collection_of_hits_id = coh.collection_of_hits_id 
+-- JOIN track t ON t.track_id = ct.track_id
+-- JOIN album a ON a.album_id = t.album_id 
+-- JOIN musican_album ma ON ma.album_id = a.album_id 
+-- JOIN musican m ON ma.musican_id = m.musican_id 
+-- JOIN genre_musican gm ON gm.musican_id = m.musican_id 
+-- JOIN genre g ON gm.genre_id = g.genre_id 
+-- GROUP BY coh.collection_of_hits_name
+-- HAVING COUNT(DISTINCT g.genre_name) != 1;
  
 -- вариант 2
-SELECT coh.collection_of_hits_name, COUNT(DISTINCT g.genre_name) AS count_genre
-FROM collection_of_hits coh, track t, album a, musican_album ma,musican m, genre_musican gm, genre g, collection_track ct 
-WHERE coh.collection_of_hits_id = ct.collection_of_hits_id AND t.track_id = ct.track_id 
-AND t.album_id = a.album_id AND a.album_id = ma.album_id AND ma.musican_id = m.musican_id 
-AND m.musican_id = gm.musican_id AND g.genre_id = gm.genre_id
-GROUP BY coh.collection_of_hits_name
-HAVING COUNT (DISTINCT g.genre_id) != 1;
+-- SELECT coh.collection_of_hits_name, COUNT(DISTINCT g.genre_name) AS count_genre
+-- FROM collection_of_hits coh, track t, album a, musican_album ma,musican m, genre_musican gm, genre g, collection_track ct 
+-- WHERE coh.collection_of_hits_id = ct.collection_of_hits_id AND t.track_id = ct.track_id 
+-- AND t.album_id = a.album_id AND a.album_id = ma.album_id AND ma.musican_id = m.musican_id 
+-- AND m.musican_id = gm.musican_id AND g.genre_id = gm.genre_id
+-- GROUP BY coh.collection_of_hits_name
+-- HAVING COUNT (DISTINCT g.genre_id) != 1;
+
+-- Исправленное ДЗ 16.02.2025 
+
+SELECT DISTINCT a.album_name 
+FROM album a
+JOIN musican_album ma ON ma.album_id = a.album_id 
+JOIN musican m ON m.musican_id = ma.musican_id 
+JOIN genre_musican gm ON gm.musican_id = m.musican_id
+GROUP BY a.album_name, gm.musican_id 
+HAVING COUNT (gm.genre_id) > 1;
+
 
 
 -- Наименования треков, которые не входят в сборники
@@ -162,10 +211,24 @@ LIMIT 1;
 
 
 -- Названия альбомов, содержащих наименьшее количество треков.
-SELECT a.album_name, COUNT(*) AS number_of_trecks
-FROM track t 
-JOIN album a ON t.album_id = a.album_id 
-GROUP BY a.album_name
-ORDER BY COUNT(t.album_id)
-LIMIT 1
+-- SELECT a.album_name, COUNT(*) AS number_of_trecks
+-- FROM track t 
+-- JOIN album a ON t.album_id = a.album_id 
+-- GROUP BY a.album_name
+-- ORDER BY COUNT(t.album_id)
+-- LIMIT 1
 
+-- Исправленное ДЗ 16.02.2025 
+
+SELECT a.album_name 
+FROM album a
+JOIN track t ON a.album_id = t.album_id 
+GROUP BY a.album_id
+HAVING COUNT (t.track_id) = (
+	SELECT COUNT (DISTINCT trk.track_id)
+	FROM track trk
+	JOIN album alb ON alb.album_id = trk.album_id
+	GROUP BY alb.album_id
+	ORDER BY 1
+	LIMIT 1
+);

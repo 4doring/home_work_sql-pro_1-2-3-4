@@ -10,14 +10,15 @@
 
 
 -- добавление musician
-INSERT INTO musican (musican_id, musican_name) -- убрать musican_id - PK
+INSERT INTO musican (musican_id, musican_name) 
      VALUES (1, 'Ozzy Osbourne'),
             (2, 'Elvis Presley'),
             (3, 'Snoop Dogg'),
             (4, 'John Lennon'),
             (5, 'Selena Gomez'),
             (6, 'Bob Dylan'),
-            (7, 'Prince');
+            (7, 'Prince'),
+            (8, 'Feel Star');
 	
 
 -- добавление genre_musician
@@ -28,18 +29,21 @@ INSERT INTO genre_musican (genre_id, musican_id)
             (4, 2),
             (4, 4),
             (4, 6),
-            (2, 7);
-
+            (2, 7),
+            (3, 8),
+            (1, 6);
 
 -- добавление album
 INSERT INTO album (album_id, album_name, album_release_year)
      VALUES (1, 'Nativity In Black', 1994),
             (2, 'Elvis', 1956),
             (3, 'No Limit Top Dogg', 2022),
-            (4, 'Imagine', 1971),
+            (4, 'Imagine', 2020),
             (5, 'Kiss & Tell', 2019),
             (6, 'Blonde on Blonde', 1966),
-            (7, 'Prince feat Kiss', 2020);
+            (7, 'Prince feat Kiss', 2020),
+            (8, 'Unknown album', 2015),
+            (9, 'Prince One', 2016);
 
 
 -- добавление musican_album
@@ -50,8 +54,10 @@ INSERT INTO musican_album (musican_id, album_id)
             (4, 4),
             (5, 5),
             (6, 6),
-            (7, 7);
-
+            (7, 7),
+            (8, 8),
+            (6, 8),	
+            (7, 9);		
 
 -- добавление track
 INSERT INTO track (track_name, track_lenght_seс , album_id)
@@ -83,8 +89,19 @@ INSERT INTO track (track_name, track_lenght_seс , album_id)
             ('Compassion', 237, 7),
             ('Beginning Endlessly', 327, 7),
             ('Future Soul Song', 308, 7),
-            ('Sticky Like Glue', 286, 7);
-
+            ('Sticky Like Glue', 286, 7),
+            ('myself', 350, 8),
+            ('by myself', 247, 8),
+            ('bemy self', 145, 8),
+            ('myself by', 247, 8),
+            ('by myself by', 333, 8),
+            ('beemy', 545, 8),
+            ('premyne', 234, 8),
+            ('my own', 333, 8),
+            ('own my', 243, 8),
+            ('my', 123, 8),
+            ('oh my god', 215, 8);
+            
 
 -- добавление collection_of_hits
 INSERT INTO collection_of_hits (collection_of_hits_id, collection_of_hits_name, hits_release_year)
@@ -93,7 +110,6 @@ INSERT INTO collection_of_hits (collection_of_hits_id, collection_of_hits_name, 
             (3, 'Greatest Hits of Netology (2020)', 2020),
             (4, 'Rock VS DisneyMania (2019)', 2019),
             (5, 'Only Prince HIT (2008)', 2008);
-
 
 -- добавление collection_track
 INSERT INTO collection_track (collection_of_hits_id, track_id)
@@ -125,5 +141,4 @@ INSERT INTO collection_track (collection_of_hits_id, track_id)
             (5, 28),
             (5, 29),
             (3, 28);
-
 
